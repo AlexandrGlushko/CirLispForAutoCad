@@ -1,0 +1,1 @@
+^C^C^P(if (not c:CIR)(load"CIR.vlx"));^PCIR;
