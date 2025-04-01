@@ -1,5 +1,5 @@
 ;===================================================================================================
-;Автоматическое построение окружности по точкам съемки
+;Автоматическое построение окружности по точкам съемки V-1.0
 ;===================================================================================================
 
 (defun c:cir()
@@ -7,7 +7,7 @@
 	(setq Func_Draw 0)					;Флаг выбора функции для отрисовки
 	(setq Set_Obj_Point nil)				;Тип объекта для поиска
 	(setq Set_Layer_Find nil)				;Слой для поиска
-	(setq Set_Diam 0.630)					;Диаметр для поиска соседних точек
+	(setq Set_Diam 0.820)					;Диаметр для поиска соседних точек
 	(setq Set_Coef_Diam 1.07)				;Коэффициент искажнеия для поиска нужного диаметра
 	(setq Set_Max_Diam (* Set_Diam Set_Coef_Diam))		;Максимальный диаметр для поиска и отрисовки
 	(setq Set_Min_Diam (* Set_Diam (- 2 Set_Coef_Diam)))	;Минимальный диаметр для откисовки
@@ -93,7 +93,10 @@
 	(progn
 		(cond
 			((= Input -1) (alert "Введите ДИАМЕТР сваи, мм"))		;Выдача сообщений о не верно
-			((= Input -2) (alert "Выберите ТОЧКУ(И) СЪЕМКИ"))		;введенных или не введенных
+			((= Input -2)
+			 	(progn
+			 	(alert "Выберите ТОЧКУ(И) СЪЕМКИ")			;введенных или не введенных
+				(Enter_Data_Take)))		
 			((= Input -3) (alert "Введите ИМЯ СЛОЯ для Построения"))	;начальных значениях
 		);cond
 	);progn
@@ -406,8 +409,8 @@
 ;===================================================================================================
 
 (defun Draw_Circle( / )
-  	(setvar "CMDECHO" 0)
-	(setvar "OSMODE" 0)
+  	;(setvar "CMDECHO" 0)
+	;(setvar "OSMODE" 0)
   	(command-s "._-LAYER" "_M" Set_Name_Layer "_C" Set_Color_Layer "" "")
   	(setq counter 0)				;Счетчик отрисованных кругов
 	(setq no_counter 0)				;Счетчик групп с количеством точек для построения < 3
@@ -433,8 +436,8 @@
 	 (setq print_list '())		;Очистка списка печати	
 	 (setq i (1+ i))		;Итерация индекса списка из групп точек
 	);End repeat
-	(setvar "OSMODE" 1)
-  	(setvar "CMDECHO" 1)
+	;(setvar "OSMODE" 1)
+  	;(setvar "CMDECHO" 1)
 	(print) (princ "Групп с количеством точек меньше трех: ") (prin1 no_counter)
   	(print) (princ "Количество построенных окружностей: ") (prin1 counter)
 );End Draw_Cirle
@@ -444,8 +447,8 @@
 ;===================================================================================================
 
 (defun Draw_Circle_2( / )
-(setvar "CMDECHO" 0)
-(setvar "OSMODE" 0)
+;(setvar "CMDECHO" 0)
+;(setvar "OSMODE" 0)
 (command-s "._-LAYER" "_M" Set_Name_Layer "_C" Set_Color_Layer "" "")
 (setq counter 0)
 (setq no_counter 0)
@@ -465,15 +468,14 @@
 			(repeat pr_length ;p3
 				(if (and (/= p1 p2) (/= p1 p3) (/= p2 p3))
 					(progn
-					(command-s "_.CIRCLE" "_3P" (nth p1 print_list) (nth p2 print_list) (nth p3 print_list))
-					(setq last_obj (entlast))
-					(setq tmp_cir (entget last_obj))
-					(entdel last_obj)
-					(setq tmp_cand (list (cons (cdr (assoc 40 tmp_cir)) (cdr(assoc 10 tmp_cir)))))
-					(if (/= (car (car tmp_cand)) nil)
-						(if (null (member tmp_cand radius_list)) (setq radius_list (append radius_list tmp_cand)))
-					)
-					(setq tmp_cand '())
+						(setq tmp_cir (3PCircleCenter (nth p1 print_list) (nth p2 print_list) (nth p3 print_list)))
+						(setq new_cir_pos tmp_cir)
+						(setq new_cir_rad (distance tmp_cir (nth p1 print_list)))
+						(setq tmp_cand (list new_cir_rad new_cir_pos))
+						(if (/= (car (car tmp_cand)) nil)
+							(if (null (member tmp_cand radius_list)) (setq radius_list (append radius_list tmp_cand)))
+						)
+						(setq tmp_cand '())
 					);progn
 				);End if
 			(setq p3 (1+ p3))
@@ -505,8 +507,8 @@
 (setq print_list '())	
 (setq i (1+ i))		
 );End repeat
-(setvar "OSMODE" 1)
-(setvar "CMDECHO" 1)
+;(setvar "OSMODE" 1)
+;(setvar "CMDECHO" 1)
 (print) (princ "Групп с количеством точек меньше трех: ") (prin1 no_counter)
 (print) (princ "Количество построенных окружностей: ") (prin1 counter)
 );End Draw_Cirle
