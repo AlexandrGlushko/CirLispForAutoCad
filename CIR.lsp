@@ -334,20 +334,20 @@
 (defun List_For_Draw(/ temp_gruop p1 p2 j i have_data temp_elem gruop_elem)
   	(setq gruop_list '())			;Список групп точек
   	(setq temp_gruop '())			;Группа кандидат на добавление в список
-  	(setq i 0)								;Внешний перебор
-  	(setq j 0)								;Внутренний перебор
-  	(repeat nab_lenght				;Перебор всех точек чертежа и создание групп точек
-			(setq p1 (nth i list_point)) 					;Внешний перебор
+  	(setq i 0)				;Внешний перебор
+  	(setq j 0)				;Внутренний перебор
+  	(repeat nab_lenght			;Перебор всех точек чертежа и создание групп точек
+		(setq p1 (nth i list_point)) 			;Внешний перебор
 	  	(setq temp_gruop (append temp_gruop (list p1)))	;Первая точка в группе
-		 		(repeat nab_lenght
-				(setq p2 (nth j list_point)) 				;Внутренний перебор
+		 	(repeat nab_lenght
+				(setq p2 (nth j list_point)) 	;Внутренний перебор
 				(if (/= p1 p2) (setq dist (distance p1 p2)))
-					;Если точки не совпадают и расстояние между точками <= Максимального диаметра
-					; и между точками боьше 2 см
+				;Если точки не совпадают и расстояние между точками <= Максимального диаметра
+				; и между точками боьше 2 см
 			  	(if (and (/= p1 p2) (<= dist Set_Max_Diam) (>= dist 0.02))
-				  (setq temp_gruop (append temp_gruop (list p2)))) 
-			  (setq j (1+ j)) ;Итерация внутренний перебор	
-				);repeat
+					(setq temp_gruop (append temp_gruop (list p2)))) 
+			 		(setq j (1+ j)) ;Итерация внутренний перебор	
+			);repeat
 			
 ;Перед добавлением кандидата (temp_gruop)проверяеться последний добавленный элемент в (gruop_list)
 ;если совпаденией нет то кандидат добавляеться если есть то пропускаеться
@@ -357,50 +357,70 @@
 	  	(setq have_data (length gruop_list))				
 	    	(if (= have_data 0)
 		  	;Певый кандидат в пустом списке
-				(setq gruop_list (append gruop_list (list temp_gruop)))		
+			(setq gruop_list (append gruop_list (list temp_gruop)))		
 		  	(progn
-			    	;Последний добавленный кандидат
-			    (setq gruop_elem (nth (- (length gruop_list) 1) gruop_list))
-			  		;Первый элемент кандидата на добавление	
-			    (setq temp_elem (nth 0 temp_gruop))
-			  		;Проверка на принадлежность элемента к последнему списку
-			    (setq have_elem (member temp_elem gruop_elem))		
-			    (if (null have_elem )
-			      	;Если нет такого элемента в списке то добавляем новый список
-			      (setq gruop_list (append gruop_list (list temp_gruop)))
-			    );if
+			    ;Последний добавленный кандидат
+			  	(setq gruop_elem (nth (- (length gruop_list) 1) gruop_list))
+			   ;Первый элемент кандидата на добавление	
+			   	(setq temp_elem (nth 0 temp_gruop))
+			   ;Проверка на принадлежность элемента к последнему списку
+				(setq have_elem (member temp_elem gruop_elem))		
+				(if (null have_elem )
+			      		;Если нет такого элемента в списке то добавляем новый список
+			      		(setq gruop_list (append gruop_list (list temp_gruop)))
+			    	);if
 			);progn		  
 		);if
 	  );progn
-	  (setq temp_gruop '()) ;Обнуление группы кандидата  
+	  (setq temp_gruop '()) 	;Обнуление группы кандидата  
 	  (setq j 0)			;и счетчика внутреннего перебора
 	  (setq i (1+ i))		;Итерация Внешнего перебора
 	);End repeat	
 );End List_For_Draw
 
 ;===================================================================================================
-;Функция рисования окружностей по первым трем точкам в группе
+; Функция вычисления центра окружности по 3-м точкам
+;===================================================================================================
+
+(defun 3PCircleCenter (p1 p2 p3)
+  (setq x1 (car p1) y1 (cadr p1)
+        x2 (car p2) y2 (cadr p2)
+        x3 (car p3) y3 (cadr p3)
+        a (- x2 x1)
+        b (- y2 y1)
+        c (- x3 x1)
+        d (- y3 y1)
+        e (+ (* a (+ x1 x2)) (* b (+ y1 y2)))
+        f (+ (* c (+ x1 x3)) (* d (+ y1 y3)))
+        g (* 2 (- (* a d) (* b c))))
+  (if (not (zerop g))
+    (list 
+      (/ (- (* d e) (* b f)) g)
+      (/ (- (* a f) (* c e)) g)
+    )
+  )
+)
+
+;===================================================================================================
+; Функция рисования окружностей по первым трем точкам в группе
 ;===================================================================================================
 
 (defun Draw_Circle( / )
   	(setvar "CMDECHO" 0)
-		(setvar "OSMODE" 0)
+	(setvar "OSMODE" 0)
   	(command-s "._-LAYER" "_M" Set_Name_Layer "_C" Set_Color_Layer "" "")
   	(setq counter 0)				;Счетчик отрисованных кругов
-		(setq no_counter 0)			;Счетчик групп с количеством точек для построения < 3
-  	(setq i 0)							;Индекс для перебора групп точек
+	(setq no_counter 0)				;Счетчик групп с количеством точек для построения < 3
+  	(setq i 0)					;Индекс для перебора групп точек
   	(setq print_list '())				;Список точек для печати
   	(repeat (length gruop_list)			;Перебор списка групп точек
 	  	(setq print_list (nth i gruop_list))	;Список точек <- [Индекс] списка группы точек 
 	  	(setq pr_length (length print_list))	;Количество точе в списке для рисования
 	  	(if (>= pr_length 3)			;Если точек 3 и более то рисуем
 		  (progn
-		    (command-s "_.CIRCLE" "_3P" (nth 0 print_list) (nth 1 print_list) (nth 2 print_list))
-			(setq last_obj (entlast))
-			(setq tmp_cir (entget last_obj))
-			(entdel last_obj)
-			(setq new_cir_pos (cdr (assoc 10 tmp_cir)))
-			(setq new_cir_rad (cdr (assoc 40 tmp_cir)))
+		    (setq tmp_cir (3PCircleCenter (nth 0 print_list) (nth 1 print_list) (nth 2 print_list)))
+			(setq new_cir_pos tmp_cir)
+			(setq new_cir_rad (distance tmp_cir (nth 2 print_list)))
 			(if (and (<= new_cir_rad (/ Set_Max_Diam 2)) (>= new_cir_rad (/ Set_Min_Diam 2)))
 			  (progn			  
 				(command-s "_.CIRCLE" new_cir_pos new_cir_rad)
@@ -410,12 +430,12 @@
 		  )
 		 (progn (setq no_counter (1+ no_counter))) ;Мало точек для построения
 		);End if
-	 (setq print_list '())					;Очистка списка печати	
-	 (setq i (1+ i))					;Итерация индекса списка из групп точек
+	 (setq print_list '())		;Очистка списка печати	
+	 (setq i (1+ i))		;Итерация индекса списка из групп точек
 	);End repeat
-		(setvar "OSMODE" 1)
+	(setvar "OSMODE" 1)
   	(setvar "CMDECHO" 1)
-		(print) (princ "Групп с количеством точек меньше трех: ") (prin1 no_counter)
+	(print) (princ "Групп с количеством точек меньше трех: ") (prin1 no_counter)
   	(print) (princ "Количество построенных окружностей: ") (prin1 counter)
 );End Draw_Cirle
 
