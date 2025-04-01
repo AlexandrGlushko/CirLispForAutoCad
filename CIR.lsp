@@ -3,19 +3,19 @@
 ;===================================================================================================
 
 (defun c:cir()
-	(setq Input 0)									;Флаг готовности к построению
-	(setq Func_Draw 0)							;Флаг выбора функции для отрисовки
+	(setq Input 0)						;Флаг готовности к построению
+	(setq Func_Draw 0)					;Флаг выбора функции для отрисовки
 	(setq Set_Obj_Point nil)				;Тип объекта для поиска
 	(setq Set_Layer_Find nil)				;Слой для поиска
-	(setq Set_Diam 0.630)						;Диаметр для поиска соседних точек
+	(setq Set_Diam 0.630)					;Диаметр для поиска соседних точек
 	(setq Set_Coef_Diam 1.07)				;Коэффициент искажнеия для поиска нужного диаметра
-	(setq Set_Max_Diam (* Set_Diam Set_Coef_Diam))				;Максимальный диаметр для поиска и отрисовки
+	(setq Set_Max_Diam (* Set_Diam Set_Coef_Diam))		;Максимальный диаметр для поиска и отрисовки
 	(setq Set_Min_Diam (* Set_Diam (- 2 Set_Coef_Diam)))	;Минимальный диаметр для откисовки
-	(setq Set_Name_Layer "Съемка")	;Имя слоя для рисования
+	(setq Set_Name_Layer "Съемка")				;Имя слоя для рисования
 	(setq Set_Color_Layer 1)				;Цвет слоя
-	(Dialog)												;Запуск диалогового окна
-	(Clear_Memory)									;Очистка памяти
-	(princ)													;Тихай выход
+	(Dialog)						;Запуск диалогового окна
+	(Clear_Memory)						;Очистка памяти
+	(princ)							;Тихай выход
 );End Cir
 
 ;===================================================================================================
@@ -25,10 +25,10 @@
 (defun Clear_Memory()
 	(setq Set_Obj_Point nil)	;Тип объекта для поиска
 	(setq Set_Layer_Find nil)	;Слой для поиска
-	(setq Input 0)						;Флаг готовности к построению
-	(setq Func_Draw 0)				;Флаг выбора функции для отрисовки
-	(setq list_point nil)			;Список найденных точек функцией Find_Point
-	(setq gruop_list nil)			;Список групп точек составленной функцией List_For_Draw 
+	(setq Input 0)			;Флаг готовности к построению
+	(setq Func_Draw 0)		;Флаг выбора функции для отрисовки
+	(setq list_point nil)		;Список найденных точек функцией Find_Point
+	(setq gruop_list nil)		;Список групп точек составленной функцией List_For_Draw 
 )
 
 ;===================================================================================================
@@ -53,8 +53,8 @@
   (start_list "layer_take")								
  	(mapcar 'add_list list_of_layer)														;Загрузка списка в диалог
   (end_list)
-	(set_tile "diam_take" (rtos (* Set_Diam 1000)))							;Диаметр, мм
-  (set_tile "layer_name" Set_Name_Layer)											;Имя слоя
+	(set_tile "diam_take" (rtos (* Set_Diam 1000)))				;Диаметр, мм
+  (set_tile "layer_name" Set_Name_Layer)					;Имя слоя
 	;Установка имени слоя в списке и вкл/отк поля ввода
 	(if (/= Set_Name_Layer "Съемка")
 		(progn
@@ -72,7 +72,7 @@
 	;Выбор цвета слоя и заливка кнопки выбора
   (setq dx (dimx_tile "colortake") dy (dimy_tile "colortake"))
   (start_image "colortake")
-  (fill_image 0 0 dx dy Set_Color_Layer)											;Цвет слоя
+  (fill_image 0 0 dx dy Set_Color_Layer) ;Цвет слоя
   (end_image)
 );End Initialization
 
@@ -88,12 +88,12 @@
 	(progn
 		(Find_Point)																								;Поиск точек на черетже
 		(List_For_Draw)																							;Составление групп из точек
-		(if (= Func_Draw 0) (Draw_Circle) (Draw_Circle_2)) 					;Построение в дной из функций
+		(if (= Func_Draw 0) (Draw_Circle) (Draw_Circle_2)) 			;Построение в дной из функций
 	);progn
 	(progn
 		(cond
-			((= Input -1) (alert "Введите ДИАМЕТР сваи, мм"))					;Выдача сообщений о не верно
-			((= Input -2) (alert "Выберите ТОЧКУ(И) СЪЕМКИ"))					;введенных или не введенных
+			((= Input -1) (alert "Введите ДИАМЕТР сваи, мм"))		;Выдача сообщений о не верно
+			((= Input -2) (alert "Выберите ТОЧКУ(И) СЪЕМКИ"))		;введенных или не введенных
 			((= Input -3) (alert "Введите ИМЯ СЛОЯ для Построения"))	;начальных значениях
 		);cond
 	);progn
@@ -111,9 +111,9 @@
 		(setq Input -1)		;Флаг запрета
   );progn
   (progn
-		(setq Set_Diam (/ (float dm) 1000))									;Присвоить диаметр
-		(setq Set_Max_Diam (* Set_Diam Set_Coef_Diam))			;Максимальный диаметр для поиска и отрисовки
-		(setq Set_Min_Diam (* Set_Diam (- 2 Set_Coef_Diam)));Минимальный диаметр для откисовки
+		(setq Set_Diam (/ (float dm) 1000))			;Присвоить диаметр
+		(setq Set_Max_Diam (* Set_Diam Set_Coef_Diam))		;Максимальный диаметр для поиска и отрисовки
+		(setq Set_Min_Diam (* Set_Diam (- 2 Set_Coef_Diam)))	;Минимальный диаметр для откисовки
 		(setq Input 1) 		;Флаг разрешения
   );prong
  );if	  
@@ -126,11 +126,11 @@
 (defun Input_Layer_Name(L_Name)
 	(if (or (= L_Name "") (null L_Name))
 	  (progn
-	  	(setq Input -3)								;Флаг запрета 
+	  	(setq Input -3)				;Флаг запрета 
 	  );progn
 	  (progn
 		(setq Set_Name_Layer L_Name)		;Присвоить имя слоя
-		(setq Input 1)									;Флаг разрешения
+		(setq Input 1)				;Флаг разрешения
 	  );progn
 	);if
 );End Input_Diam
@@ -172,7 +172,7 @@
 );End List_layer
 
 ;===================================================================================================
-;Функция выбора элемента съмки по элементам модели
+;Функция выбора элемента съемки по элементам модели
 ;При выборе объекта присваивает параметры:
 ;	Ent_point - тип объекта для поиска
 ;	Ent_layer - слой на котором расположены объекты для поиска
@@ -492,5 +492,3 @@
 );End Draw_Cirle
 
 ;===================================================================================================
-
-(defun TestGit)
