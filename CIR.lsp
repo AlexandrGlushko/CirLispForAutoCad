@@ -115,8 +115,8 @@
 
 (defun Dialog()
   	(Create_dcl_file)
-	(setq dcl_id (load_dialog cir_dcl))
-	(if (= dcl_id -1)
+	(setq dcl_id_c (load_dialog cir_dcl))
+	(if (= dcl_id_c -1)
 	  (progn
 	  (print "Файл диалогового окна cir.dlc не найден") (print)
 	  (Create_dcl_file) ; Создание диалогового окна при его отсутвии
@@ -125,7 +125,7 @@
 	);if dcl_id
   	(setq enter 2)
   	(while (>= enter 2) ;Основной цикл окна
-  	(setq new_dial (new_dialog "main_cir" dcl_id))
+  	(setq new_dial (new_dialog "main_cir" dcl_id_c))
 	  	(if (null new_dial)
 			  (progn
 					(print "Не смог загрузить диалоговое окно")
@@ -141,7 +141,7 @@
 			(action_tile "cir2" "(setq Func_Draw 1)") 
 			(action_tile "accept" "(done_dialog 1)")
 			(action_tile "cancel" "(done_dialog)")
-			(action_tile "help" "(Help_Dialog dcl_id)")
+			(action_tile "help" "(Help_Dialog dcl_id_c)")
 			
 			(setq enter (start_dialog))
 			  (cond
@@ -150,7 +150,7 @@
 				  ((= enter 1) (Start_Build Input))	;Построение с выходом из диалога
 			  );cond
 		);Конец основного цикла окна
-	(unload_dialog dcl_id)
+	(unload_dialog dcl_id_c)
   	(vl-file-delete cir_dcl)
 	(princ)
 ); Dialog
