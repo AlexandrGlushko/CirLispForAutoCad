@@ -150,6 +150,7 @@
 				  ((= enter 1) (Start_Build Input))	;Построение с выходом из диалога
 			  );cond
 		);Конец основного цикла окна
+  	;Выгрузка диалога и удаление временного файла диалогового окна
 	(unload_dialog dcl_id_c)
   	(vl-file-delete cir_dcl)
 	(princ)
