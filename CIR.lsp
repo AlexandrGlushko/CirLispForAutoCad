@@ -118,9 +118,10 @@
 	(setq dcl_id_c (load_dialog cir_dcl))
 	(if (= dcl_id_c -1)
 	  (progn
-	  (print "Файл диалогового окна cir.dlc не найден") (print)
-	  (Create_dcl_file) ; Создание диалогового окна при его отсутвии
-	  (exit)
+	    	  (vl-file-delete cir_dcl)
+		  (print "Файл диалогового окна cir.dlc не найден") (print)
+		  (Create_dcl_file) ; Создание диалогового окна при его отсутвии
+		  (exit)
 	  )
 	);if dcl_id
   	(setq enter 2)
@@ -148,6 +149,7 @@
 				  ((= enter 10) (Enter_Data_Take))	;Выбор точек съемки
 				  ((= enter 9) (Start_Build Input))	;Построение с возвратом из диалога
 				  ((= enter 1) (Start_Build Input))	;Построение с выходом из диалога
+				  (unload_dialog dcl_id_c)
 			  );cond
 		);Конец основного цикла окна
   	;Выгрузка диалога и удаление временного файла диалогового окна
